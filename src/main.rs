@@ -12,8 +12,8 @@ fn main() {
     let imgx = 600;
     let imgy = 480;
 
-    let scalex = 3.0 / imgx as f32;
-    let scaley = 3.0 / imgy as f32;
+    let _scalex = 3.0 / imgx as f32;
+    let _scaley = 3.0 / imgy as f32;
 
     let mut imgbuf = ImageBuffer::new(imgx, imgy);
     let mut rng: ChaChaRng = SeedableRng::from_seed([1,2,3,4,5,6,7,81,
@@ -28,8 +28,10 @@ fn main() {
     }
 
     let (mut x, mut y, _) = imgbuf.enumerate_pixels_mut().choose(&mut rng).unwrap();
-    for i in 0..100 {
-        let p = dbg!(f0(x, y));
+    for i in 0..400 {
+        let p_norm = normalize(x, y, imgx, imgy);
+        let p_norm = f0(p_norm.0, p_norm.1);
+        let p = denormalize(p_norm.0, p_norm.1, imgx, imgy);
         x = p.0;
         y = p.1;
 
@@ -44,6 +46,38 @@ fn main() {
     imgbuf.save("image.png").unwrap();
 }
 
+fn normalize(x: u32, y: u32, xmax: u32, ymax: u32) -> (f32, f32) {
+    let max = if xmax > ymax {
+        xmax as f32
+    } else {
+        ymax as f32
+    };
+
+    let x_center = x as f32 - (max / 2.0);
+    let y_center = y as f32 - (max / 2.0);
+
+    let x_scaled = x_center / max;
+    let y_scaled = y_center / max;
+
+    (x_scaled, y_scaled)
+}
+
+fn denormalize(x: f32, y: f32, xmax: u32, ymax: u32) -> (u32, u32) {
+    let max = if xmax > ymax {
+        xmax as f32
+    } else {
+        ymax as f32
+    };
+
+    let x_center = x * max;
+    let y_center = y * max;
+
+    let x_shifted = x_center + (max / 2.0);
+    let y_shifted = y_center + (max / 2.0);
+
+    (x_shifted as u32, y_shifted as u32)
+}
+
 fn v0(x: f32, y: f32) -> (f32, f32) {
     (x, y)
 }
@@ -54,13 +88,13 @@ fn v1(x: f32, y: f32) -> (f32, f32) {
     (xf.sin(), yf.sin())
 }
 
-fn f0(x: u32, y: u32) -> (u32, u32) {
-    let v0 = v0(0.9*x as f32 + 0.75*y as f32 + 0.0,
-                0.9*x as f32 + 0.5*y as f32 + 0.8);
+fn f0(x: f32, y: f32) -> (f32, f32) {
+    let v0 = v0(0.4*x + 0.5*y + 0.0,
+                0.4*x + 0.5*y + 0.0);
     let v0 = (0.6*v0.0, 0.6*v0.1);
-    let v1 = v1(1.0*x as f32 + 0.6*y as f32 + 0.0,
-                0.9*x as f32 + 0.7*y as f32 + 0.0);
+    let v1 = v1(0.4*x + 0.5*y + 0.1,
+                0.5*x + 0.5*y + 0.0);
     let v1 = (0.4*v1.0, 0.4*v1.1);
 
-    ((v0.0 + v1.0) as u32, (v0.1 + v1.1) as u32)
+    (v0.0 + v1.0, v0.1 + v1.1)
 }
