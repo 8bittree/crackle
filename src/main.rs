@@ -4,12 +4,13 @@ extern crate rand_chacha;
 
 use image::ImageBuffer;
 use rand::{SeedableRng, seq::IteratorRandom};
+use rand::distributions::{Distribution, WeightedIndex};
 use rand_chacha::ChaChaRng;
 
 fn main() {
     println!("Hello, world!");
 
-    let imgx = 600;
+    let imgx = 640;
     let imgy = 480;
 
     let _scalex = 3.0 / imgx as f32;
@@ -22,16 +23,32 @@ fn main() {
                                                  1,2,3,4,5,6,7,8]);
 
     for (x, y, pixel) in imgbuf.enumerate_pixels_mut() {
-        let r = (0.3 * x as f32) as u8;
-        let b = (0.3 * y as f32) as u8;
-        *pixel = image::Rgb([r, 0, b]);
+        //let r = (0.3 * x as f32) as u8;
+        //let b = (0.3 * y as f32) as u8;
+        *pixel = image::Rgb([0, 0, 0]);
     }
 
     let (mut x, mut y, _) = imgbuf.enumerate_pixels_mut().choose(&mut rng).unwrap();
-    for i in 0..400 {
+    let fs_vec: Vec<(fn(f32, f32) -> (f32, f32), [u8; 3])> = vec![
+        (f0, [0, 250, 0]),
+        (f1, [250, 250, 250])
+    ];
+    let fs_weights = vec![
+        20,
+        80,
+    ];
+    let fs = WeightedIndex::new(&fs_weights).unwrap();
+    for i in 0..4000 {
         let p_norm = normalize(x, y, imgx, imgy);
-        let p_norm = f0(p_norm.0, p_norm.1);
+
+        let (f, color) = fs_vec[fs.sample(&mut rng)];
+
+        let p_norm = f(p_norm.0, p_norm.1);
         let p = denormalize(p_norm.0, p_norm.1, imgx, imgy);
+        //let p = dbg!(denormalize(p_norm.0, p_norm.1, imgx, imgy));
+        if f == f1 {
+            println!("p: {:?}", p);
+        }
         x = p.0;
         y = p.1;
 
@@ -39,7 +56,9 @@ fn main() {
 
         if x < imgx && y < imgy {
             let pixel = imgbuf.get_pixel_mut(x,y);
-            pixel[1] = ((pixel[1] as u32 + 250) / 2) as u8;
+            pixel[0] = ((pixel[0] as u32 + color[0] as u32) / 2) as u8;
+            pixel[1] = ((pixel[1] as u32 + color[1] as u32) / 2) as u8;
+            pixel[2] = ((pixel[2] as u32 + color[2] as u32) / 2) as u8;
         }
     }
 
@@ -114,15 +133,21 @@ fn v3(x: f32, y: f32) -> (f32, f32) {
 }
 
 fn f0(x: f32, y: f32) -> (f32, f32) {
-    let v0 = v0(0.4*x + 0.5*y + 0.0,
-                0.4*x + 0.5*y + 0.0);
+    let v0 = v0(0.0*x + 0.0*y + 0.0,
+                0.0*x + 0.0*y + 0.0);
     let v0 = (0.6*v0.0, 0.6*v0.1);
-    let v1 = v1(0.4*x + 0.5*y + 0.1,
-                0.5*x + 0.5*y + 0.0);
+    let v1 = v1(0.0*x + 0.0*y + 0.0,
+                0.0*x + 0.0*y + 0.0);
     let v1 = (0.1*v1.0, 0.1*v1.1);
-    let v2 = v2(-0.1*x + 0.5*y + 0.1,
-                0.9*x + 0.5*y + 2.0);
+    let v2 = v2(0.0*x + 0.0*y + 0.0,
+                0.0*x + 0.0*y + 0.0);
     let v2 = (0.3*v2.0, 0.3*v2.1);
 
     (v0.0 + v1.0 + v2.0, v0.1 + v1.1 + v2.1)
+}
+
+fn f1(x: f32, y: f32) -> (f32, f32) {
+    let v3 = v3(0.0*x + 0.0*y + 0.0,
+                0.0*x + 0.0*y + 0.0);
+    (v3.0, v3.1)
 }
