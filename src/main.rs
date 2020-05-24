@@ -78,6 +78,10 @@ fn denormalize(x: f32, y: f32, xmax: u32, ymax: u32) -> (u32, u32) {
     (x_shifted as u32, y_shifted as u32)
 }
 
+fn r(x: f32, y: f32) -> f32 {
+    (x.powi(2) + y.powi(2)).sqrt()
+}
+
 /// Linear
 fn v0(x: f32, y: f32) -> (f32, f32) {
     (x, y)
