@@ -107,6 +107,12 @@ fn v2(x: f32, y: f32) -> (f32, f32) {
     (x_new, y_new)
 }
 
+/// Swirl
+fn v3(x: f32, y: f32) -> (f32, f32) {
+    (x * r(x,y).powi(2).sin() - y * r(x,y).powi(2).cos(),
+     x * r(x,y).powi(2).cos() + y * r(x,y).powi(2).sin())
+}
+
 fn f0(x: f32, y: f32) -> (f32, f32) {
     let v0 = v0(0.4*x + 0.5*y + 0.0,
                 0.4*x + 0.5*y + 0.0);
