@@ -82,6 +82,14 @@ fn r(x: f32, y: f32) -> f32 {
     (x.powi(2) + y.powi(2)).sqrt()
 }
 
+fn theta(x: f32, y: f32) -> f32 {
+    (x / y).atan()
+}
+
+fn phi(x: f32, y: f32) -> f32 {
+    (y / x).atan()
+}
+
 /// Linear
 fn v0(x: f32, y: f32) -> (f32, f32) {
     (x, y)
