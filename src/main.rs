@@ -78,14 +78,13 @@ fn denormalize(x: f32, y: f32, xmax: u32, ymax: u32) -> (u32, u32) {
     (x_shifted as u32, y_shifted as u32)
 }
 
+/// Linear
 fn v0(x: f32, y: f32) -> (f32, f32) {
     (x, y)
 }
 
 fn v1(x: f32, y: f32) -> (f32, f32) {
-    let xf = x;
-    let yf = y;
-    (xf.sin(), yf.sin())
+    (x.sin(), y.sin())
 }
 
 fn f0(x: f32, y: f32) -> (f32, f32) {
