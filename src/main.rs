@@ -83,8 +83,16 @@ fn v0(x: f32, y: f32) -> (f32, f32) {
     (x, y)
 }
 
+/// Sinusoidal
 fn v1(x: f32, y: f32) -> (f32, f32) {
     (x.sin(), y.sin())
+}
+
+/// Spherical
+fn v2(x: f32, y: f32) -> (f32, f32) {
+    let x_new = x / (x.powi(2) + y.powi(2));
+    let y_new = y / (x.powi(2) + y.powi(2));
+    (x_new, y_new)
 }
 
 fn f0(x: f32, y: f32) -> (f32, f32) {
@@ -93,7 +101,10 @@ fn f0(x: f32, y: f32) -> (f32, f32) {
     let v0 = (0.6*v0.0, 0.6*v0.1);
     let v1 = v1(0.4*x + 0.5*y + 0.1,
                 0.5*x + 0.5*y + 0.0);
-    let v1 = (0.4*v1.0, 0.4*v1.1);
+    let v1 = (0.1*v1.0, 0.1*v1.1);
+    let v2 = v2(-0.1*x + 0.5*y + 0.1,
+                0.9*x + 0.5*y + 2.0);
+    let v2 = (0.3*v2.0, 0.3*v2.1);
 
-    (v0.0 + v1.0, v0.1 + v1.1)
+    (v0.0 + v1.0 + v2.0, v0.1 + v1.1 + v2.1)
 }
