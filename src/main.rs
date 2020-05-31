@@ -121,8 +121,14 @@ fn v1(x: f32, y: f32) -> (f32, f32) {
 
 /// Spherical
 fn v2(x: f32, y: f32) -> (f32, f32) {
-    let x_new = x / (x.powi(2) + y.powi(2));
-    let y_new = y / (x.powi(2) + y.powi(2));
+    let mut x_new = x / (x.powi(2) + y.powi(2));
+    if x_new.is_nan() {
+        x_new = 0.0;
+    }
+    let mut y_new = y / (x.powi(2) + y.powi(2));
+    if y_new.is_nan() {
+        y_new = 0.0
+    }
     (x_new, y_new)
 }
 
@@ -133,21 +139,21 @@ fn v3(x: f32, y: f32) -> (f32, f32) {
 }
 
 fn f0(x: f32, y: f32) -> (f32, f32) {
-    let v0 = v0(0.0*x + 0.0*y + 0.0,
-                0.0*x + 0.0*y + 0.0);
-    let v0 = (0.6*v0.0, 0.6*v0.1);
+    let v0 = v0(1.0*x + 0.0*y + 0.0,
+                0.0*x + 1.0*y + 0.0);
+    let v0 = (1.0*v0.0, 1.0*v0.1);
     let v1 = v1(0.0*x + 0.0*y + 0.0,
                 0.0*x + 0.0*y + 0.0);
-    let v1 = (0.1*v1.0, 0.1*v1.1);
+    let v1 = (0.0*v1.0, 0.0*v1.1);
     let v2 = v2(0.0*x + 0.0*y + 0.0,
                 0.0*x + 0.0*y + 0.0);
-    let v2 = (0.3*v2.0, 0.3*v2.1);
+    let v2 = (0.0*v2.0, 0.0*v2.1);
 
     (v0.0 + v1.0 + v2.0, v0.1 + v1.1 + v2.1)
 }
 
 fn f1(x: f32, y: f32) -> (f32, f32) {
-    let v3 = v3(0.0*x + 0.0*y + 0.0,
-                0.0*x + 0.0*y + 0.0);
+    let v3 = v3(0.35*x + 0.35*y + 0.1,
+                0.0*x + 0.35*y + 0.1);
     (v3.0, v3.1)
 }
