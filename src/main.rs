@@ -31,14 +31,16 @@ fn main() {
     let (mut x, mut y, _) = imgbuf.enumerate_pixels_mut().choose(&mut rng).unwrap();
     let fs_vec: Vec<(fn(f32, f32) -> (f32, f32), [u8; 3])> = vec![
         (f0, [0, 250, 0]),
-        (f1, [250, 0, 0])
+        (f1, [250, 0, 0]),
+        (f2, [0, 0, 250]),
     ];
     let fs_weights = vec![
-        20,
-        80,
+        1,
+        10,
+        10,
     ];
     let fs = WeightedIndex::new(&fs_weights).unwrap();
-    for i in 0..4000 {
+    for i in 0..400000 {
         let p_norm = normalize(x, y, imgx, imgy);
 
         let (f, color) = fs_vec[fs.sample(&mut rng)];
@@ -46,9 +48,11 @@ fn main() {
         let p_norm = f(p_norm.0, p_norm.1);
         let p = denormalize(p_norm.0, p_norm.1, imgx, imgy);
         //let p = dbg!(denormalize(p_norm.0, p_norm.1, imgx, imgy));
+        /*
         if f == f1 {
             println!("p: {:?}", p);
         }
+        */
         x = p.0;
         y = p.1;
 
@@ -138,6 +142,12 @@ fn v3(x: f32, y: f32) -> (f32, f32) {
      x * r(x,y).powi(2).cos() + y * r(x,y).powi(2).sin())
 }
 
+/// Horseshoe
+fn v4(x: f32, y: f32) -> (f32, f32) {
+    (((x-y) * (x+y)) / r(x,y),
+     2.0 * x * y / r(x,y))
+}
+
 fn f0(x: f32, y: f32) -> (f32, f32) {
     let v0 = v0(1.0*x + 0.0*y + 0.0,
                 0.0*x + 1.0*y + 0.0);
@@ -156,4 +166,10 @@ fn f1(x: f32, y: f32) -> (f32, f32) {
     let v3 = v3(0.35*x + 0.35*y + 0.1,
                 0.0*x + 0.35*y + 0.1);
     (v3.0, v3.1)
+}
+
+fn f2(x: f32, y: f32) -> (f32, f32) {
+    let v4 = v4(0.1*x + -0.1*y + -0.1,
+                0.1*x + 0.1*y + 0.0);
+    (v4.0, v4.1)
 }
