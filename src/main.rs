@@ -31,7 +31,7 @@ fn main() {
     let (mut x, mut y, _) = imgbuf.enumerate_pixels_mut().choose(&mut rng).unwrap();
     let fs_vec: Vec<(fn(f32, f32) -> (f32, f32), [u8; 3])> = vec![
         (f0, [0, 250, 0]),
-        (f1, [250, 250, 250])
+        (f1, [250, 0, 0])
     ];
     let fs_weights = vec![
         20,
@@ -66,14 +66,14 @@ fn main() {
 }
 
 fn normalize(x: u32, y: u32, xmax: u32, ymax: u32) -> (f32, f32) {
-    let max = if xmax > ymax {
-        xmax as f32
+    let (max, x_shift, y_shift) = if xmax > ymax {
+        (xmax as f32, 0.0, (xmax - ymax) as f32 / 2.0)
     } else {
-        ymax as f32
+        (ymax as f32, (ymax - xmax) as f32 / 2.0, 0.0)
     };
 
-    let x_center = x as f32 - (max / 2.0);
-    let y_center = y as f32 - (max / 2.0);
+    let x_center = x as f32 - (max / 2.0) + x_shift;
+    let y_center = y as f32 - (max / 2.0) + y_shift;
 
     let x_scaled = x_center / max;
     let y_scaled = y_center / max;
@@ -82,19 +82,19 @@ fn normalize(x: u32, y: u32, xmax: u32, ymax: u32) -> (f32, f32) {
 }
 
 fn denormalize(x: f32, y: f32, xmax: u32, ymax: u32) -> (u32, u32) {
-    let max = if xmax > ymax {
-        xmax as f32
+    let (max, x_shift, y_shift) = if xmax > ymax {
+        (xmax as f32, 0.0, (xmax - ymax) as f32 / 2.0)
     } else {
-        ymax as f32
+        (ymax as f32, (ymax - xmax) as f32 / 2.0, 0.0)
     };
 
     let x_center = x * max;
     let y_center = y * max;
 
-    let x_shifted = x_center + (max / 2.0);
-    let y_shifted = y_center + (max / 2.0);
+    let x_decentered = x_center + (max / 2.0) - x_shift;
+    let y_decentered = y_center + (max / 2.0) - y_shift;
 
-    (x_shifted as u32, y_shifted as u32)
+    (x_decentered as u32, y_decentered as u32)
 }
 
 fn r(x: f32, y: f32) -> f32 {
